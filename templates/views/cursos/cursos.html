@@ -1,0 +1,50 @@
+{% include "views/default/header.html" %}
+<div class="container">
+    <div class="row">
+        {% if cursos_list %}
+        {% for curso in cursos_list %}
+        <div class="col-xs-6 col-md-2">
+            <div class="card">
+                <div class="card-header ">
+                    <a href="details/{{ curso.id_curso }}">
+                        <img src="/media/{{ curso.imagen_curso }}"  class="thumbnail" />
+                    </a>
+                </div>
+                <div class="card-body">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <h5>{{ curso.nombre_curso }}</h5>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p class="card-text"> Horario de :</p>
+                                    <p class="card-text">{{curso.id_horario }}</p>
+                                    <form method="POST" action="Registrar">
+                                        {% csrf_token %}
+                                        <input type="hidden" value="{{curso.id_curso}}"
+                                        name="id_curso" size="1"/>
+                                        <input type="submit" class="btn btn-success btn-sm" value="Resgistrar">
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+
+
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+
+        {% else %}
+        <p>No hay cursos disponibles.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% include "views/default/footer.html" %}

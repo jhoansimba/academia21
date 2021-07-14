@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia</title>
+    {%load static%}
+ <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/sheetslider.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <script src="{%static 'js/jquery-3.6.0.min.js' %}" type="text/javascript"></script>
+    <script src="{%static 'js/bootstrap.bundle.js' %}" type="text/javascript"></script>
+
+</head>
+<body>
+    <header>
+    	<nav style="background: rgba(255, 107, 62, 0.664);" class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3">
+    		<div class="container">
+    			<a class="navbar-brand"><img src="{%static 'images/LIBRO.png'%}" class="imglogo">Academia
+    			</a>
+    		  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+    			<div class="navbar-collapse d-sm-inline-flex flex-sm-row-reverse">
+    				<ul class="nav nav-pills">
+                        <li class="nav-item">
+                          <a class="nav-link active bg-danger" aria-current="page" href="/">Inicio</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                          <a class="nav-link"  href="{% url 'cursos'%}" aria-current="page"  style="color: black;">Servicios</a>
+                         
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="{% url 'nosotros' %}" style="color: black;">Nosotros</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" style="color: black;">Contactos</a>
+                          </li>
+                       
+                      </ul>
+    				
+    			</div>
+    		</div>
+    
+        {% if user.is_authenticated %}
+          <a class="btn btn-primary" href="/admin" role="button">Admin</a>
+
+          
+          <li>
+          <a href="{% url 'admin:logout' %}"  role="button">Cerrar Sesion</a>
+          </li>
+        
+        {% else %}
+        <a class="btn btn-primary" href="/admin" role="button">Iniciar Sesion</a>
+        <div>
+          <li>        
+        <a class="breadcrumb-item"  href="/adduser"  role="button">Registrar</a>
+      </li>
+    </div>
+        {% endif %}
+      </nav>
+    </header>
