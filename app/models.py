@@ -1,3 +1,4 @@
+from django.forms.models import model_to_dict
 from django.utils.html import format_html
 from django.core import validators
 from django.db import models
@@ -47,18 +48,7 @@ class Representante (models.Model):
 
 
 
-class Ficha_salud (models.Model):
-    id_fichsal=models.AutoField(primary_key=True)
-    NomEnfer_fichsa=models.CharField(max_length=11, verbose_name='Nombre')
-    descripcion_fichsal=models.TextField(verbose_name='Descripción')
-    accionesTomar_fichsal=models.TextField(verbose_name='Acciones a tomar')
-    telefonoEmer_fichsal=models.CharField(max_length=10, verbose_name='Telefono de emergencia')
-    def Salud (self):
-        txt = '{0}'
-        return txt.format(self.NomEnfer_fichsa)
-    def __str__(self) -> str:
-        txt = '{0}'
-        return txt.format(self.NomEnfer_fichsa)
+
 
 class Horarios (models.Model):
     id_horario=models.AutoField(primary_key=True)
@@ -74,7 +64,7 @@ class Horarios (models.Model):
 class Cursos (models.Model):
     imagen_curso=models.ImageField(null=True,upload_to='images/curso',verbose_name="Imagen Curso")
     id_curso=models.AutoField(primary_key=True)
-    nombre_curso=models.CharField(max_length=11)
+    nombre_curso=models.CharField(max_length=25)
     id_horario=models.ForeignKey(Horarios,on_delete=models.CASCADE ,verbose_name="Horario")
     def Cursos (self):
         txt = '{0}'
@@ -85,7 +75,9 @@ class Cursos (models.Model):
     def Horario (self):
         txt = '{0} {1} {2} '
         return txt.format(self.horarios.inicio_horario," a ", self.horarios.final_horario )
-
+    def json(self):
+        datos = model_to_dict(self)
+        return datos
 
 class  Estudiante(models.Model):
     # id_est=models.AutoField(primary_key=True)
@@ -97,10 +89,12 @@ class  Estudiante(models.Model):
     fecha_est=models.DateField(verbose_name='Fecha Nacimiento')
     email_est=models.EmailField()
     telefono_est=models.CharField(max_length=10)
-    id_rep=models.ForeignKey(Representante, on_delete=models.CASCADE, verbose_name='Nombre del representante')
-    id_fichsal=models.ForeignKey(Ficha_salud,on_delete=models.CASCADE)
+    id_rep=models.CharField(max_length=3, null=True, blank=True)
+   # id_fichsal=models.ForeignKey(Ficha_salud,on_delete=models.CASCADE)
     id_curso=models.ForeignKey(Cursos,on_delete=models.CASCADE)
     id_direccion=models.ForeignKey(Direccion,on_delete=models.CASCADE)
+
+    
     
 
     def Estudiante(self):
@@ -123,6 +117,24 @@ class  Estudiante(models.Model):
         txt = '{0}{1}{2}'
         return txt.format(self.direccion.calle1_direc," y ",self.direccion.calle2_direc)
 
+class Ficha_salud (models.Model):
+    id_est = models.ForeignKey(Estudiante, on_delete=CASCADE)
+    id_fichsal=models.AutoField(primary_key=True)
+    NomEnfer_fichsa=models.CharField(max_length=11, verbose_name='Nombre')
+    descripcion_fichsal=models.TextField(verbose_name='Descripción')
+    accionesTomar_fichsal=models.TextField(verbose_name='Acciones a tomar')
+    telefonoEmer_fichsal=models.CharField(max_length=10, verbose_name='Telefono de emergencia')
+   
+    def Salud (self):
+        txt = '{0}'
+        return txt.format(self.NomEnfer_fichsa)
+    def __str__(self) -> str:
+        txt = '{0}'
+        return txt.format(self.NomEnfer_fichsa)
+    def Estudiante(self):
+        txt = '{0} {1} '
+        return txt.format(self.Estudiante.nombres_est, self.Estudiante.apellidos_est)
+
 class Cargo (models.Model):
     id_car=models.AutoField(primary_key=True)
     nombre_car=models.CharField(max_length=15)
@@ -143,7 +155,7 @@ class Talento_Humano (models.Model):
     cargo_th=models.ForeignKey(Cargo, on_delete=models.CASCADE)
     email_est=models.EmailField(verbose_name='E-mail')
     telefono_est=models.CharField(max_length=10)
-    id_curso=models.ForeignKey(Cursos,on_delete=models.CASCADE, verbose_name='Curso')
+    id_curso=models.ManyToManyField(Cursos,verbose_name='Curso')
     id_direccion=models.ForeignKey(Direccion, on_delete=models.CASCADE, verbose_name='Dirección')
     def Talento_Humano(self):
         txt = '{0} {1} '
@@ -172,7 +184,22 @@ class Notas (models.Model):
     t_nota1 = models.FloatField(verbose_name='Trabajos',null=1, validators=[MaxValueValidator(10),MinValueValidator(0)])
     t_nota2 = models.FloatField(verbose_name='Tareas',null=1, validators=[MaxValueValidator(10),MinValueValidator(0)])
     t_nota3 = models.FloatField(verbose_name='examen', null=1,validators=[MaxValueValidator(10),MinValueValidator(0)])
-
+    sumatoria = models.FloatField(editable=False)
+    promedio = models.FloatField(editable=False)
+    estado = models.BooleanField(editable=False)
+    def save(self, *args, **kwargs):
+        self.sumatoria = self.SumaGeneral()
+        self.promedio = self.Promedio()
+        self.estado = self.EstadoEst()
+        return super(Notas, self).save(*args, **kwargs)
+    def json(self):
+        datos = model_to_dict(self)
+        datos['suma'] = self.SumaGeneral()
+        datos['promedio'] = self.Promedio()
+        datos['estado'] = self.EstadoEst()
+        datos['curso_id'] = self.curso_id.Cursos()
+        datos['est'] = self.Estudiante()
+        return datos
     def SumaParcialUno(self):
         suma = (self.p_nota1 + self.p_nota2 +self.p_nota3) / 3
         return round((suma), 2)
@@ -196,12 +223,17 @@ class Notas (models.Model):
             return format_html("<spam style='color: green;' > Aprobado </spam>")
         else:
             return format_html("<spam style='color: red;' > Reprobado </spam>")
+    def EstadoEst(self):
+        if Notas.SumaGeneral(self) > 20.5:
+            return True
+        else:
+            return False
     def Estudiante(self):
         txt = '{0} {1} '
         return txt.format(self.estudiante.nombres_est, self.estudiante.apellidos_est)
     def Cursos (self):
         txt = '{0}'
-        return txt.format(self.cursos.nombre_curso)
+        return txt.format(self.curso_id.nombre_curso)
 class Comprobante (models.Model):
     i_comp= models.AutoField(primary_key=True)
     id_est=models.ForeignKey(Estudiante, on_delete=CASCADE)

@@ -8,7 +8,22 @@
       <div class="card-body">
           <form action="" method="POST">
               {% csrf_token %}
-              {{form.as_p}}
+              {% for field in form %}
+              {% if field.name == 'password' %}
+              <input type="hidden" name="password" value="password">
+              {% elif field.name == 'groups' %}
+             0 <label for="id_groups">Cargo</label>
+              <select class="form-select"  name="groups" required id="id_groups">
+                  <option value="">Seleccione una opción</option>
+                  {% for i in grupos %}
+                  <option value="{{i.id}}">{{i.name}}</option>
+                  {% endfor %}
+              </select>
+              {% else %}
+              {{field.label}}
+              {{field}}
+              {% endif %}
+              {% endfor %}
               <button type="submit" class="btn btn-success" >Aceptar</button>
           </form>
       </div>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Menù Lateral con Css</title>
+
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="btn-menu">
+            <label style="color: black;" for="btn-menu">☰ Menú</label>
+        </div>
+
+    </div>
+    <div class="capa"></div>
+    <!--	--------------->
+
+    <input type="checkbox" id="btn-menu">
+    <div class="container-menu">
+        <div class="cont-menu">
+
+    {% if user.is_authenticated %}
+
+    {% if request.user.is_superuser %}
+    <nav>
+        <a href="/admin/">Aministrador total</a>
+        <a href="/adduser">Registrar Nuevos Usuarios</a>
+        <a href="/admin/auth/group/">Roles</a>
+       
+    </nav>
+    
+    {% else %}
+    {% for i in request.user.groups.all %}
+    
+     
+    <nav>
+        
+       
+        
+        <a href="/representante/">Datos del Estudiante</a>
+        <a href="/representante/salud">Ficha de Salud</a>
+        <a href="representante/listcomprobante/" > Comprobante Pagado</a>
+       
+    </nav>
+    
+
+    {% endfor %}
+    {% endif %}
+    {% endif %}
+
+
+    
+            
+            <label for="btn-menu">✖️</label>
+        </div>
+    </div>
+</body>
+
+</html>

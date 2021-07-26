@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app.apps.AppConfig',
+    'Login.apps.LoginConfig',
     'User.apps.UserConfig',
     
 ]
@@ -60,7 +61,7 @@ ROOT_URLCONF = 'academia21.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [Path.joinpath(BASE_DIR,'templates')],
+        'DIRS': ['Templates'],
         #'C:Users/Jhoan/Desktop/phytonweb/academia21/academia21/templates'
         'APP_DIRS': True,
         'OPTIONS': {
@@ -134,5 +135,7 @@ STATICFILES_DIRS = (
     Path.joinpath(BASE_DIR,'static'),
 )
 MEDIA_ROOT= Path.joinpath(BASE_DIR,"media")
-LOGOUT_REDIRECT_URL = '/admin/login/'
+LOGOUT_REDIRECT_URL = '/login/' # Cuando cierra seción
+LOGIN_REDIRECT_URL = '/Bienvenido' #Cuando se loguea
+LOGIN_URL = '/login/' #Cuando no está logueadi
 AUTH_USER_MODEL = 'User.Usuario'

@@ -46,11 +46,9 @@ admin.site.register(Horarios)
 
 @admin.register(Ficha_salud)
 class Ficha_salud (admin.ModelAdmin):
-    list_display=('Salud', 'descripcion_fichsal', 'accionesTomar_fichsal', 'telefonoEmer_fichsal')
+    list_display=('id_est', 'Salud', 'descripcion_fichsal', 'accionesTomar_fichsal', 'telefonoEmer_fichsal')
 
-@ admin.register(Talento_Humano)
-class th(admin.ModelAdmin):
-    list_display=('Talento_Humano','cargo_th', 'id_curso')
+admin.site.register(Talento_Humano)
 admin.site.register(Cargo)
 
 @ admin.register(Comprobante)

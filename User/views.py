@@ -8,31 +8,27 @@ class addUser(CreateView):
     model = Usuario
     template_name = 'views/user/addUser.html'
     form_class = FormularioUser
-    success_url = '/admin/login/'
+    success_url = '/Bienvenido'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['grupos'] = Group.objects.all()
+        return context
     def post(self, request, *args, **kwargs):
         formulario = self.form_class(request.POST)
-        if formulario.is_valid():
-            p = formulario.clean()
-            print(p)
-
-            formulario.save()
-            return redirect(self.success_url)
-        #     groups = formulario.cleaned_data['groups']
-        #     password = formulario.cleaned_data.get('password')
-        #     username = formulario.cleaned_data.get('username')
-        #     first_name = formulario.cleaned_data.get('first_name')
-        #     last_name = formulario.cleaned_data.get('last_name')
-        #     email = formulario.cleaned_data.get('email')
-        #     user = User.objects.create_user(username=username,
-        #                                 first_name=first_name,
-        #                                 last_name=last_name,
-        #                                 email=email,
-        #                                 password=password,
-        #                                 is_staff=1)
-        #     for i in groups:
-        #        g = Group.objects.get(name = i)
-        #        user.groups.add(g)
-        #        user.save()
-        # return redirect(self.success_url)
-
-    
+        try:
+            if formulario.is_valid():
+                group = formulario.cleaned_data['groups']
+                letra = ''
+                for i in group:
+                    letra = str(i.name)
+                username = formulario.cleaned_data['username']
+                formulario.cleaned_data['username'] = '{}{}'.format(letra[0], username) 
+                formulario.cleaned_data['password'] = '{}{}'.format(letra[0], username) 
+                form = FormularioUser(formulario.clean())
+                if form.is_valid():
+                    form.save()
+                    return redirect(self.success_url)
+        except Exception as e:
+            print('Error Except : ', e)
+            return super().post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
